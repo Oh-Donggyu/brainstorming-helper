@@ -7,7 +7,7 @@ const sc = require("../modules/spawn-child");
 const router = express.Router();
 
 router.get("/", (req, res, next) => {
-    res.render("index");
+    res.render("index", { title: "Brainstorming Helper" });
 });
 
 router.get("/search", async (req, res, next) => {
