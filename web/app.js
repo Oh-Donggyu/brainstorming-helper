@@ -1,6 +1,8 @@
 const express = require("express");
 const createError = require("http-errors");
+const { resolve } = require("path");
 const path = require("path");
+const CustomError = require("./errors");
 
 const app = express();
 
@@ -20,10 +22,15 @@ app.use((req, res, next) => {
 });
 
 app.use((err, req, res, next) => {
-    res.locals.errMsg = err.message;
     res.locals.error = req.app.get("env") === "development" ? err : {};
 
-    res.status(err.status || 500).render("error");
+    if(err instanceof CustomError) {
+        res.locals.errMsg = err.description;
+        res.status(err.httpStatusCode).render("error");
+    } else {
+        res.locals.errMsg = err.message;
+        res.status(err.status || 500).render("error");
+    }
 });
 
 module.exports = app;

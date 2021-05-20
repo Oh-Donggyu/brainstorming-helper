@@ -1,18 +1,25 @@
 const axios = require("axios");
+const secrets = require("../secrets.json");
+const CustomError = require("../errors");
 
-const KEY = "AIzaSyAEUJnBOP6BmMgSN2cGzDT8X0nCibuN9Zk";
-const CX = "81e3534b2ea929781";
+const KEY = secrets.KEY;
+const CX = secrets.CX;
 const REQ_PAGE_SIZE = 10;
 const TOTAL_PAGE = 30;
 
 async function run(word) {
+    const c2coff = 1;           // chinese off
+    const filter = 1;           // Enable duplicated content filter
+    const exactTerms = word;
+    const lr = "lang_kr";       // Restrict documents wrote in korean
+    // start : start index of cse return values
+    // num : number of cse return values
+
     let query = `key=${KEY}&cx=${CX}&`;
-    query += "c2coff=1&";               // chinese off
-    query += "filter=1&"                // Enable duplicated content filter
-    query += `exactTerms=${word}&`;
-    query += "lr=lang_kr&";             // Restrict documents wrote in korean
-    // query += "start=1&";             // start index of total search result
-    // query += "num=10&";              // Number of returned values. valid value is 1 to 10
+    query += `c2coff=${c2coff}&`;
+    query += `filter=${filter}&`;
+    query += `exactTerms=${exactTerms}&`;
+    query += `lr=${lr}&`;
 
     let items = [];
     let curPages = 0;
@@ -29,7 +36,7 @@ async function run(word) {
         try {
             res = await axios(config); // if search result doesn't exist, res is undefined
         } catch(error) {
-            throw Error(error);
+            throw new CustomError("Google CSE Request Error", 500);
         }
 
         // if search result exists
