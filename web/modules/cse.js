@@ -1,5 +1,6 @@
 const axios = require("axios");
 const secrets = require("../secrets.json");
+const CustomError = require("../errors");
 
 const KEY = secrets.KEY;
 const CX = secrets.CX;
@@ -35,7 +36,7 @@ async function run(word) {
         try {
             res = await axios(config); // if search result doesn't exist, res is undefined
         } catch(error) {
-            throw Error(error);
+            throw new CustomError("Google CSE Request Error", 500);
         }
 
         // if search result exists
