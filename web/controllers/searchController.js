@@ -1,10 +1,12 @@
 const path = require("path");
 
-const cse = require("../modules/cse");
-const sc = require("../modules/spawn-child");
-const MongoDriver = require("../modules/db");
+const GoogleCustomSearch = require("../services/google-custom-search");
+const KafkaDriver = require("../services/kafka");
+const MongoDriver = require("../services/db");
+const sc = require("../services/spawn-child");
 
-const CACHE_LIMIT = 10000; // test. 캐시기간 10초
+const TOTAL_URLS = 30;
+const CACHE_LIMIT = 1; // test. 캐시기간 1초
 
 const retBodies = {
     cachedKeywords: {
@@ -18,8 +20,14 @@ const retBodies = {
         resultBody: null,
     }
 }
+const PRODUCER_TOPIC = "urls";
+const CUSTOMER_TOPIC = "crawledResults"; // TODO: 토픽명 확인
 
 module.exports = {
+    index(req, res, next) {
+        res.render("index", { title: "Brainstorming Helper" });
+    },
+
     async search(req, res, next) {
         console.log(req.query);
         let word = req.query.word;
@@ -43,40 +51,76 @@ module.exports = {
             return res.status(200).json(retBody);
         }
 
-
-        // Google Custom Search Engine
-        word = encodeURIComponent(word);
-        let items;
+        // Create topic if not exist before send message
         try {
-            items = await cse.run();
+            await KafkaDriver.createTopic(PRODUCER_TOPIC);
         } catch(error) {
-            console.log("[Axios] axios.get error");
             console.log(error);
             return next(error);
         }
-        const urls = cse.extractUrls(items);
+
+        // Google Custom Search Engine
+        word = encodeURIComponent(word);
+        let urlCount = 0;
+        let items;
+        while(urlCount < TOTAL_URLS) {
+            try {
+                items = await GoogleCustomSearch.run(word, urlCount+1);
+            } catch(error) {
+                console.log(error);
+                return next(error);
+            }
+            let urls = GoogleCustomSearch.extractUrls(items);
+
+            // urls array to one string format
+            let urlsString = "";
+            for(const url of urls)
+                urlsString += `${url} `;
+
+            console.log(`urlsString = ${urlsString}`);
+            // Send urls to kafka urls topic
+            try {
+                await KafkaDriver.sendMessage(PRODUCER_TOPIC, urlsString);
+            } catch(error) {
+                console.log(error);
+                return next(error);
+            }
+
+            urlCount += urls.length;
+        }
+
+        res.status(200).json(retBodies.newlyCreatedKeywords);
 
 
-        // Child crawler process spawn
-        const crawlerPath = path.join(__dirname, "../../crawler/crawler.py");
-        const cmd = "python";
-        const crawler = sc.spawnPython(cmd, crawlerPath, urls);
 
-        crawler.stdout.on("data", (data) => {
-            console.log(`[Python] ${data.toString()}`);
-        });
-        crawler.on("close", (code) => {
-            console.log(`crawler processing done with exit code ${code}`);
-            const body = {
-                resultCode: "200",
-                resultMsg: "success",
-            };
-            res.status(200).json(body);
-        });
-        crawler.on("error", (error) => {
-            console.log("[Spawn] crawler spawn error");
-            console.log(error);
-            next(error);
-        });
+
+
+
+
+
+
+        // // Child crawler process spawn
+        // const crawlerPath = path.join(__dirname, "../../crawler/crawler.py");
+        // const cmd = "python";
+        // const crawler = sc.spawnPython(cmd, crawlerPath, urls);
+
+        // crawler.stdout.on("data", (data) => {
+        //     console.log(`[Python] ${data.toString()}`);
+        // });
+        // crawler.on("close", async (code) => {
+        //     console.log(`crawler processing done with exit code ${code}`);
+        //     setTimeout(() => {
+        //         MongoDriver.updateDocument(word, "남관우 12.9 오동규 11.1 김하랑 154.1");
+        //     }, 2000);
+
+        //     await MongoDriver.watchDocument(word);
+
+        //     res.status(200).json(body);
+        // });
+        // crawler.on("error", (error) => {
+        //     console.log("[Spawn] crawler spawn error");
+        //     console.log(error);
+        //     next(error);
+        // });
     },
 }
