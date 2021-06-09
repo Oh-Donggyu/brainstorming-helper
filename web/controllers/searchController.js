@@ -60,12 +60,12 @@ module.exports = {
         }
 
         // Google Custom Search Engine
-        word = encodeURIComponent(word);
+        const encodedWord = encodeURIComponent(word);
         let urlCount = 0;
         let items;
         while(urlCount < TOTAL_URLS) {
             try {
-                items = await GoogleCustomSearch.run(word, urlCount+1);
+                items = await GoogleCustomSearch.run(encodedWord, urlCount+1);
             } catch(error) {
                 console.log(error);
                 return next(error);
@@ -77,10 +77,13 @@ module.exports = {
             for(const url of urls)
                 urlsString += `${url} `;
 
-            console.log(`urlsString = ${urlsString}`);
+            const message = {
+                key: word,
+                value: urlsString,
+            };
             // Send urls to kafka urls topic
             try {
-                await KafkaDriver.sendMessage(PRODUCER_TOPIC, urlsString);
+                await KafkaDriver.sendMessage(PRODUCER_TOPIC, message);
             } catch(error) {
                 console.log(error);
                 return next(error);

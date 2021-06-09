@@ -37,11 +37,12 @@ function sendStuckedMessages() {
 }
 
 class KafkaDriver {
-    static sendMessage(topic, messages) {
+    static sendMessage(topic, message) {
         console.log("sendMessage method in");
         
         if(IS_PRODUCER_READY) {
-            const kafkaMessage = [{ topic, messages }];
+            const keyedMessage = new kafka.KeyedMessage(message.key, message.value)
+            const kafkaMessage = [{ topic, messages: keyedMessage }];
             producer.send(kafkaMessage, (error, data) => {
                 if(error) {
                     throw new CustomError("Kafka producer send message error", 500, error);
