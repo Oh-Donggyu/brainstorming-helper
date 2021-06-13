@@ -1,6 +1,6 @@
 const app = require("./app");
 const http = require("http");
-const MongoDriver = require("./modules/db");
+const MongoDriver = require("./services/db");
 
 const port = normalizePort(process.env.PORT || "3000");
 const server = http.createServer(app);

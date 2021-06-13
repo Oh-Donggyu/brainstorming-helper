@@ -1,9 +1,6 @@
-const path = require("path");
-
 const GoogleCustomSearch = require("../services/google-custom-search");
-const KafkaDriver = require("../services/kafka");
 const MongoDriver = require("../services/db");
-const sc = require("../services/spawn-child");
+const { KafkaDriver, keywordResMap } = require("../services/kafka");
 
 const TOTAL_URLS = 30;
 const CACHE_LIMIT = 1; // test. 캐시기간 1초
@@ -21,7 +18,7 @@ const retBodies = {
     }
 }
 const PRODUCER_TOPIC = "urls";
-const CUSTOMER_TOPIC = "crawledResults"; // TODO: 토픽명 확인
+const CUSTOMER_TOPIC = "tfidfResults"; // TODO: 토픽명 확인
 
 module.exports = {
     index(req, res, next) {
@@ -30,7 +27,7 @@ module.exports = {
 
     async search(req, res, next) {
         console.log(req.query);
-        let word = req.query.word;
+        let word = req.query.word; // WARNING: req.query.word is object. not string
         const regex = /^[가-힣a-zA-Z0-9]+$/;
         word = regex.exec(word);
 
@@ -57,6 +54,18 @@ module.exports = {
         } catch(error) {
             console.log(error);
             return next(error);
+        }
+
+        // Remember keyword - res object pair until tf-idf calculated
+        // If the keyword is already in process, just add res object to value array
+        // If not, create key-value pair and insert
+        if(keywordResMap.has(word)) {
+            const resArr = keywordResMap.get(word);
+            resArr.push(res);
+        } else {
+            const resArr = new Array();
+            resArr.push(res);
+            keywordResMap.set(word[0], resArr);
         }
 
         // Google Custom Search Engine
@@ -91,9 +100,6 @@ module.exports = {
 
             urlCount += urls.length;
         }
-
-        res.status(200).json(retBodies.newlyCreatedKeywords);
-
 
 
 
