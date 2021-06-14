@@ -31,22 +31,22 @@ module.exports = {
         const regex = /^[가-힣a-zA-Z0-9]+$/;
         word = regex.exec(word);
 
-        // Search DB first
-        // If cache is valid, use the cache
-        const opt = { keyword: word };
-        let cache = null;
-        try {
-            cache = await MongoDriver.findOne(opt);
-        } catch(error) {
-            return next(error);
-        }
-
-        // Check cache is valid
-        if(cache && (Date.now() -  cache.lastModified <= CACHE_LIMIT)) {
-            const retBody = retBodies.cachedKeywords;
-            retBody.resultBody = JSON.stringify(cache);
-            return res.status(200).json(retBody);
-        }
+//        // Search DB first
+//        // If cache is valid, use the cache
+//        const opt = { keyword: word };
+//        let cache = null;
+//        try {
+//            cache = await MongoDriver.findOne(opt);
+//        } catch(error) {
+//            return next(error);
+//        }
+//
+//        // Check cache is valid
+//        if(cache && (Date.now() -  cache.lastModified <= CACHE_LIMIT)) {
+//            const retBody = retBodies.cachedKeywords;
+//            retBody.resultBody = JSON.stringify(cache);
+//            return res.status(200).json(retBody);
+//        }
 
         // Create topic if not exist before send message
         try {
