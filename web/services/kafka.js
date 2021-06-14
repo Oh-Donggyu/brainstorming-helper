@@ -12,7 +12,6 @@ let IS_PRODUCER_READY = 0;
 const keywordResMap = new Map();
 
 const client = new kafka.KafkaClient({ kafkaHost: "192.168.56.19:9092" });
-const producer = new kafka.Producer(client);
 const stuckedMessages = [];
 
 // init producer
