@@ -15,8 +15,13 @@ import pandas as pd
 
 from functools import cmp_to_key
 
+from kafka import KafkaProducer
+
 DOCUMENT_COUNT = 2
 TOP_N_WORDS = 5
+TOPIC = "tfIdf"
+
+producer = KafkaProducer(bootstrap_servers="192.168.56.19:9092", key_serializer=str.encode, value_serializer=str.encode)
 
 sc = SparkContext(appName='test')
 sc.setLogLevel("WARN")
@@ -163,8 +168,16 @@ def save_rdd(rdd):
 
 	if keyword_map[keyword]["document_count"] == DOCUMENT_COUNT:
 		calc_result = calc_term_term_matrix(keyword)
-		print("calc_result")	
-		print(calc_result)
+		
+		calc_result_str = ""
+		for element in calc_result:
+			calc_result_str += str(element[0])
+			calc_result_str += " "
+			calc_result_str += str(element[1])
+			calc_result_str += " "
+
+		producer.send(TOPIC, key=keyword, value=calc_result_str)
+		producer.flush()
 
 # words = lines1.flatMap(lambda line: line.split(" "))
 words = crawledData.flatMap(split_line)
