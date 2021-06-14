@@ -10,23 +10,23 @@ app.set("port", port);
 server.listen(port);
 server.on("error", onError);
 server.on("listening", onListening);
-(async () => {
-    try {
-        await MongoDriver.connectDB();
-    } catch(error) {
-        // Logging 필요
-        console.log(error);
-        process.exit(1);
-    }
-    
-    try {
-        MongoDriver.createDummy();
-    } catch(error) {
-        // Logging 필요
-        console.log(error);
-        process.exit(1);
-    }
-})();
+//(async () => {
+//    try {
+//        await MongoDriver.connectDB();
+//    } catch(error) {
+//        // Logging 필요
+//        console.log(error);
+//        process.exit(1);
+//    }
+//    
+//    try {
+//        MongoDriver.createDummy();
+//    } catch(error) {
+//        // Logging 필요
+//        console.log(error);
+//        process.exit(1);
+//    }
+//})();
 
 
 function normalizePort(val) {
