@@ -73,9 +73,6 @@ def push_to_topics(data, topic='crawled_results'):
 contents.foreachRDD(lambda x: push_to_topics(x))
 contents.pprint()
 
-
-
-
 ssc.start()
 ssc.awaitTermination()
 #%%

@@ -2,3 +2,5 @@ tempConsumer.js
 test.js
 
 node_modules
+
+secrets.json
