@@ -72,7 +72,7 @@ module.exports = {
         const encodedWord = encodeURIComponent(word);
         let urlCount = 0;
         let items;
-        while(urlCount < TOTAL_URLS) {
+        while(urlCount < TOTAL_URLS) { // TODO: 429 에러 안뜨는지 확인
             try {
                 items = await GoogleCustomSearch.run(encodedWord, urlCount+1);
             } catch(error) {
