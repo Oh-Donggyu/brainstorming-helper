@@ -9,10 +9,14 @@ const CUSTOMER_OPTIONS = {
 };
 let IS_PRODUCER_READY = 0;
 
+const keywordResMap = new Map();
+
 const client = new kafka.KafkaClient({ kafkaHost: "192.168.56.19:9092" });
 const producer = new kafka.Producer(client);
 const stuckedMessages = [];
 
+// init producer
+const producer = new kafka.Producer(client);
 producer.on("ready", () => {
     IS_PRODUCER_READY = 1;
     sendStuckedMessages();
@@ -20,6 +24,27 @@ producer.on("ready", () => {
 producer.on("error", (error) => {
     throw new CustomError("Kafka Producer Error", 500, error);
 });
+
+// init consumer
+const consumer = new kafka.Consumer(client, [
+    { topic: 'tfidfResults', partition: 0 }
+]);
+consumer.on("message", (message) => {
+    const word = message.key;
+    const result = message.value;
+    const resArr = keywordResMap.get(word);
+    if(resArr) {
+        for(const res of resArr) {
+            res.status(201).json({ word, result });
+        }
+        keywordResMap.delete(word);
+    } else {
+        // throw new CustomError("Cannot find res object", 500);  
+    }
+});
+consumer.on("error", (error) => {
+    throw new CustomError("Kafka Consumer Error", 500, error);
+})
 
 function sendStuckedMessages() {
     for(const message of stuckedMessages) {
@@ -37,9 +62,7 @@ function sendStuckedMessages() {
 }
 
 class KafkaDriver {
-    static sendMessage(topic, message) {
-        console.log("sendMessage method in");
-        
+    static sendMessage(topic, message) {        
         if(IS_PRODUCER_READY) {
             const keyedMessage = new kafka.KeyedMessage(message.key, message.value)
             const kafkaMessage = [{ topic, messages: keyedMessage }];
@@ -74,6 +97,7 @@ class KafkaDriver {
             return;
         }
 
+        // TODO: 실제 실행 환경에서는 partitions, replicationFactor 모두 3으로 수정 필요
         const topicsToCreate = [
             {
                 topic,
@@ -94,4 +118,7 @@ class KafkaDriver {
     }
 }
 
-module.exports = KafkaDriver;
+module.exports = { 
+    KafkaDriver,
+    keywordResMap,
+};

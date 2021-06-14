@@ -33,6 +33,7 @@ class GoogleCustomSearch {
         try {
             res = await axios(config); // if search result doesn't exist, res is undefined
         } catch(error) {
+            console.log(error);
             throw new CustomError("Google CSE Request Error", 500);
         }
 
