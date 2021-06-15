@@ -5,12 +5,19 @@ block css
     link(rel='stylesheet', href='/stylesheets/search-bar.css')
     link(rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css")
 
+block pre-js
+    script(src="https://unpkg.com/axios/dist/axios.min.js")
+
 block content
     .wrap
         h1.title= title
         .greeting Welcome. Please search your keyword
-        form(action="/search" method="get")
-            .search
-                input.searchTerm.js-searchTerm(type="text", name="word", placeholder="궁금한 키워드를 입력해보세요!")
-                button.searchButton(type="submit")
-                    i.fa.fa-search
+        .search
+            input.searchTerm.js-searchTerm(type="text", name="word", placeholder="궁금한 키워드를 입력해보세요!")
+            button.searchButton.js-searchButton(type="submit")
+                i.fa.fa-search
+        br
+        .result.js-result
+
+block post-js
+    script(src="/javascripts/index.js")
