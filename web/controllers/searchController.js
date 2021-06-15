@@ -18,7 +18,6 @@ const retBodies = {
     }
 }
 const PRODUCER_TOPIC = "urls";
-const CUSTOMER_TOPIC = "tfidfResults"; // TODO: 토픽명 확인
 
 module.exports = {
     index(req, res, next) {
@@ -31,22 +30,31 @@ module.exports = {
         const regex = /^[가-힣a-zA-Z0-9]+$/;
         word = regex.exec(word);
 
-//        // Search DB first
-//        // If cache is valid, use the cache
-//        const opt = { keyword: word };
-//        let cache = null;
-//        try {
-//            cache = await MongoDriver.findOne(opt);
-//        } catch(error) {
-//            return next(error);
-//        }
-//
-//        // Check cache is valid
-//        if(cache && (Date.now() -  cache.lastModified <= CACHE_LIMIT)) {
-//            const retBody = retBodies.cachedKeywords;
-//            retBody.resultBody = JSON.stringify(cache);
-//            return res.status(200).json(retBody);
-//        }
+        // res.status(200).json({
+        //     resultCode: 200,
+        //     resultMsg: "success",
+        //     item: {
+        //         word,
+        //         result: "개미 1.0 아파트 0.99888281 사람 0.981123"
+        //     }
+        // });
+
+        // Search DB first
+        // If cache is valid, use the cache
+        const opt = { keyword: word };
+        let cache = null;
+        try {
+            cache = await MongoDriver.findOne(opt);
+        } catch(error) {
+            return next(error);
+        }
+
+        // Check cache is valid
+        if(cache && (Date.now() -  cache.lastModified <= CACHE_LIMIT)) {
+            const retBody = retBodies.cachedKeywords;
+            retBody.resultBody = JSON.stringify(cache);
+            return res.status(200).json(retBody);
+        }
 
         // Create topic if not exist before send message
         try {
@@ -100,36 +108,5 @@ module.exports = {
 
             urlCount += urls.length;
         }
-
-
-
-
-
-
-
-
-        // // Child crawler process spawn
-        // const crawlerPath = path.join(__dirname, "../../crawler/crawler.py");
-        // const cmd = "python";
-        // const crawler = sc.spawnPython(cmd, crawlerPath, urls);
-
-        // crawler.stdout.on("data", (data) => {
-        //     console.log(`[Python] ${data.toString()}`);
-        // });
-        // crawler.on("close", async (code) => {
-        //     console.log(`crawler processing done with exit code ${code}`);
-        //     setTimeout(() => {
-        //         MongoDriver.updateDocument(word, "남관우 12.9 오동규 11.1 김하랑 154.1");
-        //     }, 2000);
-
-        //     await MongoDriver.watchDocument(word);
-
-        //     res.status(200).json(body);
-        // });
-        // crawler.on("error", (error) => {
-        //     console.log("[Spawn] crawler spawn error");
-        //     console.log(error);
-        //     next(error);
-        // });
     },
 }

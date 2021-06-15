@@ -1,7 +1,7 @@
 const express = require("express");
 const createError = require("http-errors");
-const { resolve } = require("path");
 const path = require("path");
+const logger = require("morgan");
 const CustomError = require("./errors");
 
 const app = express();
@@ -14,6 +14,7 @@ app.set("view engine", "pug");
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, "public")));
+app.use(logger("dev"));
 
 app.use("/", indexRouter);
 

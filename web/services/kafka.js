@@ -7,6 +7,7 @@ const PRODUCER_OPTIONS = {
 const CUSTOMER_OPTIONS = {
 
 };
+const CONSUMER_TOPIC = "tfidfResults"; // TODO: 토픽명 확인
 let IS_PRODUCER_READY = 0;
 
 const keywordResMap = new Map();
@@ -26,7 +27,7 @@ producer.on("error", (error) => {
 
 // init consumer
 const consumer = new kafka.Consumer(client, [
-    { topic: 'tfIdfResults', partition: 0 }
+    { topic: CONSUMER_TOPIC, partition: 0 }
 ]);
 consumer.on("message", (message) => {
 	console.log("message receive!");
