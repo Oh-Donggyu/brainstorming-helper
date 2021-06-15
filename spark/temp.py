@@ -1,10 +1,7 @@
 import pyspark
-from pyspark.sql import SQLContext, Row
 from pyspark.ml.feature import HashingTF as MLHashingTF
 from pyspark.ml.feature import IDF as MLIDF
-#from pyspark.mllib.linalg import SparseVector
 
-from pyspark.sql.types import DoubleType
 from pyspark.streaming.kafka import KafkaUtils
 from pyspark import SparkContext
 from pyspark.streaming import StreamingContext
@@ -25,7 +22,6 @@ producer = KafkaProducer(bootstrap_servers="192.168.56.19:9092", key_serializer=
 
 sc = SparkContext(appName='test')
 sc.setLogLevel("WARN")
-sqlContext = SQLContext(sc)
 
 ssc = StreamingContext(sc, 5)
 crawledData = KafkaUtils.createDirectStream(ssc, topics=["crawledResults"], 
