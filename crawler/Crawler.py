@@ -11,11 +11,13 @@ from bs4 import BeautifulSoup
 import re
 
 BROKER_LIST = "192.168.56.19:9092"
+CONSUMER_TOPIC = "urls"
+PRODUCER_TOPIC = "crawledResults"
 
 sc = SparkContext(appName='crawl')
 ssc = StreamingContext(sc, 2)
 sc.setLogLevel("WARN")
-urls = KafkaUtils.createDirectStream(ssc, topics=["urls"], 
+urls = KafkaUtils.createDirectStream(ssc, topics=[CONSUMER_TOPIC], 
                                     kafkaParams={"metadata.broker.list": BROKER_LIST})
 
 def get_text(tag):
@@ -58,7 +60,7 @@ contents = urls.map(lambda url: get_contents(url))
 
 producer = KafkaProducer(bootstrap_servers=BROKER_LIST, key_serializer=str.encode, value_serializer=str.encode)
 
-def push_to_topics(data, topic='crawledResults'):
+def push_to_topics(data, topic=PRODUCER_TOPIC):
     
     data = data.collect()
     if not data:

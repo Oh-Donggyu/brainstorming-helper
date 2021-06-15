@@ -17,7 +17,7 @@ from kafka import KafkaProducer
 DOCUMENT_COUNT = 2
 TOP_N_WORDS = 5
 PRODUCER_TOPIC = "tfIdfResults"
-CONSUMER_TOPIC = "cralwedResults"
+CONSUMER_TOPIC = "crawledResults"
 BROKER_LIST = "192.168.56.19:9092"
 
 producer = KafkaProducer(bootstrap_servers="192.168.56.19:9092", key_serializer=str.encode, value_serializer=str.encode)
