@@ -52,44 +52,44 @@ class MongoDriver {
         }
     }
 
-    static async createDummy() {
-        const relatedKeywords = {
-            "가나다라": 12.91,
-            "마바사": 123.11,
-            "아자차카": 11.00,
-            "타파하": 1.6,
-        };
+    // static async createDummy() {
+    //     const relatedKeywords = {
+    //         "가나다라": 12.91,
+    //         "마바사": 123.11,
+    //         "아자차카": 11.00,
+    //         "타파하": 1.6,
+    //     };
     
-        const newkeyword = new Keywords({
-            keyword: "남관우",
-            lastModified: Date.now(),
-            relatedKeywords: JSON.stringify(relatedKeywords),
-        });
+    //     const newkeyword = new Keywords({
+    //         keyword: "남관우",
+    //         lastModified: Date.now(),
+    //         relatedKeywords: JSON.stringify(relatedKeywords),
+    //     });
         
-        let res = null;
-        try {
-            res = await Keywords.findOne({ keyword: "남관우" });
-        } catch(error) {
-            console.log("[MongoDB] Dummy FindOne Error");
-            throw new CustomError("Dummy FindOne Error", 500);
-        }
+    //     let res = null;
+    //     try {
+    //         res = await Keywords.findOne({ keyword: "남관우" });
+    //     } catch(error) {
+    //         console.log("[MongoDB] Dummy FindOne Error");
+    //         throw new CustomError("Dummy FindOne Error", 500);
+    //     }
 
-        try {
-            if(res) {
-                await Keywords.deleteOne({ keyword: "남관우" });
-                console.log("[MongoDB] Delete Exist Dummy Success");
-            }
-        } catch(error) {
-            throw new CustomError("Delete Exist Dummy Error", 500);
-        }
+    //     try {
+    //         if(res) {
+    //             await Keywords.deleteOne({ keyword: "남관우" });
+    //             console.log("[MongoDB] Delete Exist Dummy Success");
+    //         }
+    //     } catch(error) {
+    //         throw new CustomError("Delete Exist Dummy Error", 500);
+    //     }
 
-        try {
-            await newkeyword.save();
-        } catch(error) {
-            console.log("[MongoDB] Dummy create error");
-            throw new CustomError("Create Dummy Error", 500);
-        }
-    }
+    //     try {
+    //         await newkeyword.save();
+    //     } catch(error) {
+    //         console.log("[MongoDB] Dummy create error");
+    //         throw new CustomError("Create Dummy Error", 500);
+    //     }
+    // }
 }
 
 module.exports = MongoDriver;

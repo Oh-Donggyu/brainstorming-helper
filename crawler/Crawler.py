@@ -10,12 +10,13 @@ from urllib.request import urlopen
 from bs4 import BeautifulSoup
 import re
 
+BROKER_LIST = "192.168.56.19:9092"
 
 sc = SparkContext(appName='crawl')
 ssc = StreamingContext(sc, 2)
 sc.setLogLevel("WARN")
 urls = KafkaUtils.createDirectStream(ssc, topics=["urls"], 
-                                    kafkaParams={"metadata.broker.list": "192.168.56.19:9092"})
+                                    kafkaParams={"metadata.broker.list": BROKER_LIST})
 
 def get_text(tag):
     return re.sub(r'[^\w]+',' ',tag.get_text())
@@ -55,8 +56,7 @@ urls = urls.flatMap(lambda x: func1(x))
 urls = urls.filter(lambda x: func2(x))
 contents = urls.map(lambda url: get_contents(url))
 
-
-producer = KafkaProducer(bootstrap_servers='192.168.56.19:9092', key_serializer=str.encode, value_serializer=str.encode)
+producer = KafkaProducer(bootstrap_servers=BROKER_LIST, key_serializer=str.encode, value_serializer=str.encode)
 
 def push_to_topics(data, topic='crawledResults'):
     

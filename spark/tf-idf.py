@@ -16,7 +16,9 @@ from kafka import KafkaProducer
 
 DOCUMENT_COUNT = 2
 TOP_N_WORDS = 5
-TOPIC = "tfIdfResults"
+PRODUCER_TOPIC = "tfIdfResults"
+CONSUMER_TOPIC = "cralwedResults"
+BROKER_LIST = "192.168.56.19:9092"
 
 producer = KafkaProducer(bootstrap_servers="192.168.56.19:9092", key_serializer=str.encode, value_serializer=str.encode)
 
@@ -24,8 +26,8 @@ sc = SparkContext(appName='test')
 sc.setLogLevel("WARN")
 
 ssc = StreamingContext(sc, 2)
-crawledData = KafkaUtils.createDirectStream(ssc, topics=["crawledResults"], 
-			                                        kafkaParams={"metadata.broker.list":"192.168.56.19:9092"})
+crawledData = KafkaUtils.createDirectStream(ssc, topics=[CONSUMER_TOPIC], 
+			                                        kafkaParams={"metadata.broker.list": BROKER_LIST})
 
 
 # keyword_map structure
@@ -172,7 +174,7 @@ def save_rdd(rdd):
 			calc_result_str += str(element[1])
 			calc_result_str += " "
 
-		producer.send(TOPIC, key=keyword, value=calc_result_str)
+		producer.send(PRODUCER_TOPIC, key=keyword, value=calc_result_str)
 		producer.flush()
 
 # words = lines1.flatMap(lambda line: line.split(" "))

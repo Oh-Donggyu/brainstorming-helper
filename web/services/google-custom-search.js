@@ -42,49 +42,6 @@ class GoogleCustomSearch {
             return res.data.items;
         else
             return [];
-
-    
-        // let items = [];
-        // let curPages = 0;
-        // while(curPages < TOTAL_PAGE) {
-        //     const curQuery = `${query}&start=${curPages+1}&num=${REQ_PAGE_SIZE}`;
-    
-        //     const config = {
-        //         method: "get",
-        //         url: `https://www.googleapis.com/customsearch/v1?${curQuery}`,
-        //         type: "application/json",
-        //     };
-    
-        //     let res;
-        //     try {
-        //         res = await axios(config); // if search result doesn't exist, res is undefined
-        //     } catch(error) {
-        //         throw new CustomError("Google CSE Request Error", 500);
-        //     }
-    
-        //     // if search result exists
-        //     if(res) {
-        //         const curItems = res.data.items;
-        //         Array.prototype.push.apply(items, curItems);
-                
-        //         // type of request, nextPage, previousPage of Google CSE return value is array.
-        //         const reqContext = res.data.queries.request[0];
-        //         let nextPageContext = null;
-        //         if(res.data.queries.nextPage) {
-        //             nextPageContext = res.data.queries.nextPage[0];
-        //         }
-    
-        //         if(!nextPageContext) {
-        //             curPages += reqContext.count;
-        //             break;
-        //         }
-        //         else
-        //             curPages += REQ_PAGE_SIZE;
-        //     } else
-        //         break;
-        // }
-    
-        // return items;
     }
 
     static extractUrls(items) {

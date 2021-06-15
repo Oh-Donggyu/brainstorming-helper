@@ -9,11 +9,12 @@ const CUSTOMER_OPTIONS = {
 
 };
 const CONSUMER_TOPIC = "tfIdfResults"; // TODO: 토픽명 확인
+const KAFKA_HOST = "192.168.56.19:9092"
 let IS_PRODUCER_READY = 0;
 
 const keywordResMap = new Map();
 
-const client = new kafka.KafkaClient({ kafkaHost: "192.168.56.19:9092" });
+const client = new kafka.KafkaClient({ kafkaHost: KAFKA_HOST });
 const stuckedMessages = [];
 
 // init producer
