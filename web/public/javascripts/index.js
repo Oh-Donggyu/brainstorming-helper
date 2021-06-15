@@ -75,7 +75,7 @@ async function onSearchButtonClicked(event) {
         console.log(error);
     }
     console.log(response);
-    let result = response.data.item.result;
+    let result = response.data.item.relatedKeywords;
 
     result = result.split(" ");
 

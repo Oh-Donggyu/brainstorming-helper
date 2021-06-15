@@ -40,16 +40,13 @@ class MongoDriver {
         console.log(next);
     }
     
-    static async updateDocument(word, values) {
+    static async updateDocument(word, values, time) {
         const filter = { keyword: word };
-        const updateDoc = {
-            $set: {
-                relatedKeywords: values,
-            },
-        };
+        const updateDoc = { relatedKeywords: values, lastModified: time };
+        const opt = { new: true, upsert: true };
         
         try {
-            await Keywords.updateOne(filter, updateDoc);
+            await Keywords.findOneAndUpdate(filter, updateDoc, opt);
         } catch(error) {
             throw new CustomError("Collection Update Error", 500);
         }

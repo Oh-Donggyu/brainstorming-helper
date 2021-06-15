@@ -23,7 +23,7 @@ producer = KafkaProducer(bootstrap_servers="192.168.56.19:9092", key_serializer=
 sc = SparkContext(appName='test')
 sc.setLogLevel("WARN")
 
-ssc = StreamingContext(sc, 5)
+ssc = StreamingContext(sc, 2)
 crawledData = KafkaUtils.createDirectStream(ssc, topics=["crawledResults"], 
 			                                        kafkaParams={"metadata.broker.list":"192.168.56.19:9092"})
 

@@ -12,7 +12,7 @@ import re
 
 
 sc = SparkContext(appName='crawl')
-ssc = StreamingContext(sc, 5)
+ssc = StreamingContext(sc, 2)
 sc.setLogLevel("WARN")
 urls = KafkaUtils.createDirectStream(ssc, topics=["urls"], 
                                     kafkaParams={"metadata.broker.list": "192.168.56.19:9092"})

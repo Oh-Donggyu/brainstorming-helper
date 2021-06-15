@@ -1,5 +1,6 @@
 const kafka = require("kafka-node");
 const CustomError = require("../errors");
+const MongoDriver = require("./db");
 
 const PRODUCER_OPTIONS = {
 
@@ -7,7 +8,7 @@ const PRODUCER_OPTIONS = {
 const CUSTOMER_OPTIONS = {
 
 };
-const CONSUMER_TOPIC = "tfidfResults"; // TODO: 토픽명 확인
+const CONSUMER_TOPIC = "tfIdfResults"; // TODO: 토픽명 확인
 let IS_PRODUCER_READY = 0;
 
 const keywordResMap = new Map();
@@ -30,17 +31,25 @@ const consumer = new kafka.Consumer(client, [
     { topic: CONSUMER_TOPIC, partition: 0 }
 ]);
 consumer.on("message", (message) => {
-	console.log("message receive!");
-	console.log(message);
     const word = message.key;
     const result = message.value;
     const resArr = keywordResMap.get(word);
-    if(resArr) {
-        console.log(resArr);
+    const nowms = Date.now();
+	if(resArr) {
 		for(const res of resArr) {
-            res.status(201).json({ word, result });
+            res.status(201).json({ 
+				"resultCode": 201,
+				"resultMsg": "Successfully calc related keywords",
+				"item": {
+					"keyword": word,
+					"relatedKeywords": result,
+					"lastModified": nowms,
+				}
+			});
         }
         keywordResMap.delete(word);
+
+		MongoDriver.updateDocument(word, result, nowms);
     } else {
         throw new CustomError("Cannot find res object", 500);  
     }

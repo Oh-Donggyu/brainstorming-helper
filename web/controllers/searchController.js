@@ -3,18 +3,18 @@ const MongoDriver = require("../services/db");
 const { KafkaDriver, keywordResMap } = require("../services/kafka");
 
 const TOTAL_URLS = 30;
-const CACHE_LIMIT = 1; // test. 캐시기간 1초
+const CACHE_LIMIT = 5000; // test. 캐시기간 5초
 
 const retBodies = {
     cachedKeywords: {
         resultCode: 200,
         resultMsg: "Cached Keywords returned",
-        resultBody: null,
+        item: null,
     },
     newlyCreatedKeywords: {
         resultCode: 203,
         resultMsg: "Newly Created Keywords returned",
-        resultBody: null,
+        item: null,
     }
 }
 const PRODUCER_TOPIC = "urls";
@@ -48,12 +48,20 @@ module.exports = {
         } catch(error) {
             return next(error);
         }
-
-        // Check cache is valid
-        if(cache && (Date.now() -  cache.lastModified <= CACHE_LIMIT)) {
-            const retBody = retBodies.cachedKeywords;
-            retBody.resultBody = JSON.stringify(cache);
-            return res.status(200).json(retBody);
+	
+		console.log(cache)
+		// Check cache is valid
+        if(cache) {
+            const nowms = Date.now();
+			const cachems = parseInt(cache.lastModified);
+			console.log(`cache lastModified = ${cache.lastModified}`);
+			console.log(`now : ${Date.now()}`)
+			console.log(`cache time: ${cachems}`)
+			if(nowms - cachems <= CACHE_LIMIT) {
+				const retBody = retBodies.cachedKeywords;
+				retBody.item = cache;
+				return res.status(200).json(retBody);
+			}
         }
 
         // Create topic if not exist before send message
