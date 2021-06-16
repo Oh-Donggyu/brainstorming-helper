@@ -1,7 +1,4 @@
 import pyspark
-from pyspark.ml.feature import HashingTF as MLHashingTF
-from pyspark.ml.feature import IDF as MLIDF
-
 from pyspark.streaming.kafka import KafkaUtils
 from pyspark import SparkContext
 from pyspark.streaming import StreamingContext
